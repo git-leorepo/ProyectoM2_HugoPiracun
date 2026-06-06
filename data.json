@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "name": "Hugo",
+    "email": "hugo@example",
+    "bio": "Analista QA",
+    "created_at": "2026-06-06T04:16:14.733Z"
+  },
+  {
+    "id": 2,
+    "name": "Diana",
+    "email": "Diana@example",
+    "bio": "Analista QA",
+    "created_at": "2026-06-06T04:16:22.076Z"
+  }
+]

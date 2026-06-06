@@ -1,0 +1,16 @@
+{
+  "name": "proyecto_integrador2",
+  "version": "1.0.0",
+  "description": "API para documentar autores, post y comentarios de una aplicacion de publicaciones usando Node.js con express y BS con postgress",
+  "repository": {
+    "type": "git",
+    "url": "git-leorepo"
+  },
+  "license": "ISC",
+  "author": "Hugo Leonardo Piracun",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

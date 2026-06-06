@@ -4,7 +4,7 @@
   "description": "API para documentar autores, post y comentarios de una aplicacion de publicaciones usando Node.js con express y BS con postgress",
   "repository": {
     "type": "git",
-    "url": "git-leorepo"
+    "url": "https://github.com/git-leorepo/ProyectoM2_HugoPiracun.git"
   },
   "license": "ISC",
   "author": "Hugo Leonardo Piracun",
@@ -12,5 +12,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
   }
 }

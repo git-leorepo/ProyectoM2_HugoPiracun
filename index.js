@@ -12,6 +12,18 @@ const app = express();
 const config = require('./config/config');
 
 
+app.use(express.json());
+
+//health endpoint para verificar que la API esta funcionando correctamente
+app.get("/health", (req, res) => {
+    res.status(200).json({
+        status: "ok",
+        message: "API is healthy",
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        version: "1.0.0"
+    })
+})
 
 //comprobacion que el puerto esta funcionando
 app.listen(config.PORT, ()=>{

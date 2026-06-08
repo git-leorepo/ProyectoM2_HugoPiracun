@@ -12,9 +12,11 @@ const config = require('./config/config');
 app.use(express.json());
 
 //Array para almacenar autores en memoria
-const authors = [];
+//const authors = [];
+const {authors} = require("./src/data/authors");
 //Array para almacenar posts en memoria
-const posts = [];
+//const posts = [];
+const {posts} = require("./src/data/posts");
 //autoincrementador para los IDs de autores y posts
 let nextId = 1;
 

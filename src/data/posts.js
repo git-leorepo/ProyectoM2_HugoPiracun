@@ -1,4 +1,4 @@
-[
+let posts =[
     {
         "id": 1,
         "title": "Introducción a Node.js",
@@ -39,6 +39,6 @@
         "published": false,
         "created_at": "2024-06-05T18:00:00Z"
     }
-
-
 ]
+
+module.exports = posts;

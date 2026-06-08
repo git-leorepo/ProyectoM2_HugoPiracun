@@ -1,5 +1,5 @@
-[
-  {
+let authors =[
+    {
     "id": 1,
     "name": "'Ana García",
     "email": "ana@example.com",
@@ -39,3 +39,5 @@
     "created_at": "2026-06-06T04:16:22.076Z"
   }
 ]
+
+module.exports = authors;

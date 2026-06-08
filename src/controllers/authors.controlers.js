@@ -1,8 +1,8 @@
 //Array para almacenar autores en memoria
 //const authors = [];
-const {authors} = require("./src/data/authors");
+const {authors} = require("../data/authors");
 
-//POST./authors Crear Authors
+//POST/authors
 const createAuthors = (req, res) => {
     const {name, email, bio, created_at} = req.body;
     //Validacion de campos requeridos
@@ -33,12 +33,12 @@ const createAuthors = (req, res) => {
 }
 
 
-//GET./authors Consultar todos los autores
+//GET/authors
 const getAllAuthors = (req, res) => {
     res.status(200).json(authors);
 }
 
-//GET./authors/:id Buscar un autor por ID
+//GET/authors/:id
 const getAuthorsById = (req, res) => {
     //Extrae el ID de los parámetros de la ruta y lo convierte a número
     const id = Number (req.params.id);
@@ -70,7 +70,7 @@ const getAuthorsById = (req, res) => {
     res.status(200).json(author);
 }
 
-//PUT./authors/:id Actualizar un autor por ID
+//PUT/authors/:id
 const updateAuthorsById = (req, res) =>{
     //Extraer el id de authors
     const id = Number (req.params.id);
@@ -113,7 +113,7 @@ const updateAuthorsById = (req, res) =>{
     res.status(200).json(authors[index]);
 }
 
-//DELETE./authors/:id Borrar un autor por ID
+//DELETE/authors/:id
 const deleteAuthorsById = (req, res) =>{
     //Extraer el id de authors
     const id = Number (req.params.id);

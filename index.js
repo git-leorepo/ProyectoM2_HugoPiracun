@@ -1,6 +1,12 @@
 //requieres para express
 //variables de entorno
 require('dotenv').config();
+
+//Configuracion de las rutas
+//#1. AUTHORS
+const authorRoutes = require("./src/routes/author.routes");
+
+
 //configuracion para express
 const express = require('express');
 const app = express();
@@ -10,6 +16,9 @@ const config = require('./src/config/config');
 
 //middleware para parsear el cuerpo de las solicitudes como JSON
 app.use(express.json());
+
+//Registrar las rutas
+app.use("/", authorRoutes);
 
 
 //Array para almacenar posts en memoria
@@ -31,7 +40,6 @@ app.get("/health", (req, res) => {
 })
 
 
-//#1. AUTHORS
 
 app.delete("/authors/:id", (req, res) =>{
     

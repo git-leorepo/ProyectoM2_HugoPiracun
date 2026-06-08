@@ -13,6 +13,9 @@ app.use(express.json());
 
 //Array para almacenar autores en memoria
 const authors = [];
+//Array para almacenar posts en memoria
+const posts = [];
+//autoincrementador para los IDs de autores y posts
 let nextId = 1;
 
 //health endpoint para verificar que la API esta funcionando correctamente
@@ -27,12 +30,12 @@ app.get("/health", (req, res) => {
 })
 
 
+//#1. AUTHORS
+
 //Consultar todos los autores
 app.get("/authors", (req, res) => {
     res.status(200).json(authors);
 });
-
-//#1. AUTHORS
 
 //Crear Authors
 app.post("/authors", (req, res) =>{
@@ -170,10 +173,42 @@ app.delete("/authors/:id", (req, res) =>{
 
 //#POSTS
 
+//Crear un post
+app.post("/posts", (req, res) => {
+    //Extraer los datos del post del body de la solicitud
+    const {authorId, title, content, published_created_at} = req.body;
+
+    //Valuidacion de campos requeridos
+    if(!authorId || !title || !content){
+        return res.status(400).json({
+            error: "authorId, title and content are required"
+        });
+    }
+    
+    //Crear el objeto Post
+    const newPost = {
+        id: nextId++,
+        title,
+        content,
+        authorId,                
+        published: published ?? false, //si no viene sera false
+        created_at: published_created_at || new Date().toISOString()
+    }
+
+    //Guardar el post en el array de posts
+    posts.push(newPost);
+
+    //Devolver el post creado con un status 201
+    res.status(201).json(newPost);
+});
+
+
 //comprobacion que el puerto esta funcionando
 app.listen(config.PORT, ()=>{
     console.log(`Servidor corriendo en el puerto http://localhost:${config.PORT} en modo ${config.NODE_ENV}`);
 })
+
+
 
 
 

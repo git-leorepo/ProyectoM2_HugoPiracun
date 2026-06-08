@@ -6,7 +6,7 @@ const express = require('express');
 const app = express();
 
 //traigo la configuracion desde el archivo config.js en la carpeta config
-const config = require('./config/config');
+const config = require('./src/config/config');
 
 //middleware para parsear el cuerpo de las solicitudes como JSON
 app.use(express.json());

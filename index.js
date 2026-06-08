@@ -175,10 +175,17 @@ app.delete("/authors/:id", (req, res) =>{
 
 //#POSTS
 
+//consultar todos los posts
+app.get("/posts", (req, res) => {
+    res.status(200).json(posts);
+})
+
+//
+
 //Crear un post
 app.post("/posts", (req, res) => {
     //Extraer los datos del post del body de la solicitud
-    const {authorId, title, content, published_created_at} = req.body;
+    const {authorId, title, content, published, created_at} = req.body;
 
     //Valuidacion de campos requeridos
     if(!authorId || !title || !content){
@@ -193,8 +200,8 @@ app.post("/posts", (req, res) => {
         title,
         content,
         authorId,                
-        published: published ?? false, //si no viene sera false
-        created_at: published_created_at || new Date().toISOString()
+        published: published || false, //si no viene sera false
+        created_at: created_at || new Date().toISOString()
     }
 
     //Guardar el post en el array de posts

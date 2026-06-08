@@ -38,7 +38,15 @@ let posts =[
         "authorId": 1,
         "published": false,
         "created_at": "2024-06-05T18:00:00Z"
+    },
+    {
+        "id": 6,
+        "title": "Desarrollo de aplicaciones web con React",
+        "content": "React es una biblioteca de JavaScript para construir interfaces de usuario...",
+        "authorId": 2,
+        "published": true,
+        "created_at": "2024-06-06T20:00:00Z"
     }
 ]
 
-module.exports = posts;
+module.exports = {posts};

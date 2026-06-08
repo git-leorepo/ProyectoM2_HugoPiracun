@@ -18,7 +18,8 @@ const {authors} = require("./src/data/authors");
 //const posts = [];
 const {posts} = require("./src/data/posts");
 //autoincrementador para los IDs de autores y posts
-let nextId = 1;
+let nextIdAuthor = authors.length + 1;
+let nextIdPost = posts.length + 1;
 
 //health endpoint para verificar que la API esta funcionando correctamente
 app.get("/health", (req, res) => {
@@ -34,12 +35,12 @@ app.get("/health", (req, res) => {
 
 //#1. AUTHORS
 
-//Consultar todos los autores
+//GET./authors Consultar todos los autores
 app.get("/authors", (req, res) => {
     res.status(200).json(authors);
 });
 
-//Crear Authors
+//POST./authors Crear Authors
 app.post("/authors", (req, res) =>{
     const {name, email, bio, created_at} = req.body;
     //Validacion de campos requeridos
@@ -58,7 +59,7 @@ app.post("/authors", (req, res) =>{
     }
     //Crear el objeto autor
     const newAuthor = {
-        id: nextId++,
+        id: nextIdAuthor++,
         name,
         email,
         bio: bio || "",
@@ -69,7 +70,7 @@ app.post("/authors", (req, res) =>{
     res.status(201).json(newAuthor);
 })
 
-//Buscar un autor por ID
+//GET./authors/:id Buscar un autor por ID
 
 app.get("/authors/:id", (req, res) =>{
     //Extrae el ID de los parámetros de la ruta y lo convierte a número
@@ -103,7 +104,7 @@ app.get("/authors/:id", (req, res) =>{
 
 })
 
-//Actualizar un autor por ID
+//PUT./authors/:id Actualizar un autor por ID
 app.put("/authors/:id", (req, res) =>{
     //Extraer el id de authors
     const id = Number (req.params.id);
@@ -147,7 +148,7 @@ app.put("/authors/:id", (req, res) =>{
 
 })
 
-//Borrar un autor por ID
+//DELETE./authors/:id Borrar un autor por ID
 app.delete("/authors/:id", (req, res) =>{
     //Extraer el id de authors
     const id = Number (req.params.id);
@@ -175,14 +176,37 @@ app.delete("/authors/:id", (req, res) =>{
 
 //#POSTS
 
-//consultar todos los posts
+//GET./posts consultar todos los posts
 app.get("/posts", (req, res) => {
     res.status(200).json(posts);
 })
 
-//
+//GET./posts/:id Consultar un post por ID
+app.get("/posts/:id", (req, res) => {
+    //Extraer el ID de los parámetros de la ruta y lo convierte a número
+    const id = Number (req.params.id);
 
-//Crear un post
+    //Validar que eñ id es valido
+    if(Number.isNaN(id)){
+        return res.status(400).json({
+            error: "ID must be a number"
+        })
+    }
+    //buscar el post por ID
+    const post = posts.find(p => p.id === id);
+
+    if (!post){
+        //si el post no existe
+        return res.status(404).json({
+            error: "Post not found"
+        })
+    }
+
+    //responder que el post fue encontrado
+    res.status(200).json(post);
+});
+
+//POST./posts Crear un post
 app.post("/posts", (req, res) => {
     //Extraer los datos del post del body de la solicitud
     const {authorId, title, content, published, created_at} = req.body;
@@ -196,7 +220,7 @@ app.post("/posts", (req, res) => {
     
     //Crear el objeto Post
     const newPost = {
-        id: nextId++,
+        id: nextIdPost++,
         title,
         content,
         authorId,                
@@ -210,6 +234,79 @@ app.post("/posts", (req, res) => {
     //Devolver el post creado con un status 201
     res.status(201).json(newPost);
 });
+
+//PUT./posts/:id Actualizar un post por ID
+
+app.put("/posts/:id", (req, res) => {
+    //Extrae el ID del endpoint
+    const id = Number (req.params.id);
+
+    if(Number.isNaN(id)){
+        return res.status(400).json({
+            error: "ID must be a number"
+        })
+    }
+
+    //Extrae los nuevos datos del body
+    const {authorId, title, content, published, created_at} = req.body;
+
+    if(!title || !content || !authorId){
+        return res.status(400).json({
+            error: "title, or content, or authorId are required"
+        })
+    }
+
+    //buscar el indice del post por ID en el array
+    //findIndex devuelve la posicion del elemento array, sino lo encuentra devuelve -1
+    const index = posts.findIndex (p => p.id === id);
+
+    if(index ===-1){
+        return res.status(404).json({
+            error: "Post not found"
+        })
+    }
+
+    posts[index] = {
+        id,
+        title,
+        content,
+        authorId,
+        published,
+        created_at
+    }
+
+    res.status(200).json(posts[index]);
+
+});
+
+//DELETE./posts/:id Eliminar el post
+app.delete("/posts/:id", (req, res) => {
+    //Extrae el id del endpoint
+    const id = Number(req.params.id);
+
+    if(Number.isNaN(id)){
+        return res.status(400).json({
+            error: "ID must be a number"
+        })
+    }
+
+    //Buscar el indice del posts
+    const index = posts.findIndex(p => p.id === id);
+
+    //Validar que el indice exista    
+    if(index === -1){
+        return res.status(404).json({
+            error: "Posts not found"
+        })
+    }
+
+    //Elimina el posts con el indice indicado
+    const deleted = posts.splice(index, 1)[0];
+
+    //Cod de respuesta del posts eliminado
+    res.status(200).json(deleted);
+});
+
 
 
 //comprobacion que el puerto esta funcionando

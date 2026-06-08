@@ -31,10 +31,11 @@ app.get("/health", (req, res) => {
 
 
 //Consultar todos los autores
-
 app.get("/authors", (req, res) => {
     res.status(200).json(authors);
 });
+
+//#1. AUTHORS
 
 //Crear Authors
 app.post("/authors", (req, res) =>{
@@ -66,9 +67,49 @@ app.post("/authors", (req, res) =>{
     res.status(201).json(newAuthor);
 })
 
+//Buscar un autor por ID
 
+app.get("/authors/:id", (req, res) =>{
+    //Extrae el ID de los parámetros de la ruta y lo convierte a número
+    const id = Number (req.params.id);
+
+    //Validar que el ID es un número válido
+    if(Number.isNaN(id)){
+        return res.status(400).json({
+            error: "Invalid author ID"
+        });
+    }
+    //Validar que el ID es positivo
+    if(id <= 0){
+        return res.status(400).json({
+            error: "Author ID must be a positive integer"
+        });
+    }
+
+    //Validar que el author existe
+    const author = authors.find(author => author.id === id);
+
+    //si author es undefined, significa que no se encontró un autor con ese ID
+    if(!author){        
+        return res.status(404).json({
+            error: "Author not found"
+        });
+    }
+
+    //Si se encuentra el autor, se devuelve con un status 200
+    res.status(200).json(author);
+
+})
+
+
+
+//#POSTS
 
 //comprobacion que el puerto esta funcionando
 app.listen(config.PORT, ()=>{
     console.log(`Servidor corriendo en el puerto http://localhost:${config.PORT} en modo ${config.NODE_ENV}`);
 })
+
+
+
+

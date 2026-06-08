@@ -32,7 +32,6 @@ const createAuthors = (req, res) => {
     res.status(201).json(newAuthor);
 }
 
-
 //GET/authors
 const getAllAuthors = (req, res) => {
     res.status(200).json(authors);

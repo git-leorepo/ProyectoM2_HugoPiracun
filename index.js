@@ -73,7 +73,7 @@ app.get("/authors/:id", (req, res) =>{
     //Validar que el ID es un número válido
     if(Number.isNaN(id)){
         return res.status(400).json({
-            error: "Invalid author ID"
+            error: "ID must be a number"
         });
     }
     //Validar que el ID es positivo
@@ -105,7 +105,7 @@ app.put("/authors/:id", (req, res) =>{
     //Validar que el ID es un número válido
     if(Number.isNaN(id)){
         return res.status(400).json({
-            error: "Invalid author ID"
+            error: "ID must be a number"
         });
     }
 
@@ -139,6 +139,32 @@ app.put("/authors/:id", (req, res) =>{
     }
 
     res.status(200).json(authors[index]); 
+
+})
+
+//Borrar un autor por ID
+app.delete("/authors/:id", (req, res) =>{
+    //Extraer el id de authors
+    const id = Number (req.params.id);
+    //Validar que el ID es un número válido
+    if(Number.isNaN(id)){
+        return res.status(400).json({
+            error: "ID must be a number"
+        });
+    }
+
+    //Buscar el indice del autor a eliminar
+    const index = authors.findIndex(a => a.id === id);
+
+    //Validar que el autor existe
+    if (index === -1){
+        return res.status(404).json({
+            error: "Author not found"
+        })
+    }
+
+    const deleted = authors.splice(index, 1)[0];
+    res.status(200).json(deleted);
 
 })
 

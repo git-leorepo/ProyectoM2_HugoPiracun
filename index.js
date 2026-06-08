@@ -308,6 +308,50 @@ app.delete("/posts/:id", (req, res) => {
 });
 
 
+// GET /posts/author/:authorId - Obtener todos los posts con el detalle de su respectivo autor
+app.get("/posts/author/:authorId", (req, res) => {
+    // 1. Extraemos y validamos que el authorId sea un número
+    const authorId = Number(req.params.authorId);
+
+    if (Number.isNaN(authorId)) {
+        return res.status(400).json({
+            error: "authorId must be a number"
+        });
+    }
+
+    // 2. Verificamos si el autor realmente existe en nuestra base de datos en memoria
+    const authorExists = authors.find(a => a.id === authorId);
+    if (!authorExists) {
+        return res.status(404).json({
+            error: "Author not found"
+        });
+    }
+
+    // 3. Filtramos todos los posts que pertenezcan a este authorId
+    const authorPosts = posts.filter(p => p.authorId === authorId);
+
+    // 4. Mapeamos los posts encontrados para incrustar el objeto del autor dentro de cada uno
+    const postsWithAuthorDetail = authorPosts.map(post => {
+        return {
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            published: post.published,
+            created_at: post.created_at,
+            author: {
+                id: authorExists.id,
+                name: authorExists.name,
+                email: authorExists.email,
+                bio: authorExists.bio
+            }
+        };
+    });
+
+    // 5. Respondemos con el array finalizado
+    res.status(200).json(postsWithAuthorDetail);
+});
+
+
 
 //comprobacion que el puerto esta funcionando
 app.listen(config.PORT, ()=>{

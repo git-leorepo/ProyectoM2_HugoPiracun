@@ -5,9 +5,6 @@ require('dotenv').config();
 const express = require('express');
 const app = express();
 
-
-
-
 //traigo la configuracion desde el archivo config.js en la carpeta config
 const config = require('./config/config');
 
@@ -87,7 +84,7 @@ app.get("/authors/:id", (req, res) =>{
     }
 
     //Validar que el author existe
-    const author = authors.find(author => author.id === id);
+    const author = authors.find(a => a.id === id);
 
     //si author es undefined, significa que no se encontró un autor con ese ID
     if(!author){        
@@ -101,7 +98,49 @@ app.get("/authors/:id", (req, res) =>{
 
 })
 
+//Actualizar un autor por ID
+app.put("/authors/:id", (req, res) =>{
+    //Extraer el id de authors
+    const id = Number (req.params.id);
+    //Validar que el ID es un número válido
+    if(Number.isNaN(id)){
+        return res.status(400).json({
+            error: "Invalid author ID"
+        });
+    }
 
+    //Extrae los nuevos datos del body de la solicitud
+    const {name, email, bio, created_at} = req.body;
+
+    //Valida quue el email y name no sean vacios
+    if(!name || !email){
+        return res.status(400).json({
+            error: "name and email are required"
+        })
+    }
+
+    //buscar el indice del autor a actualizar
+    const index = authors.findIndex(a => a.id === id);
+
+    //validar que el autor existe
+    if (index === -1){
+        return res.status(404).json({
+            error: "Author not found"
+        })
+    }
+
+    //Actualizar los datos del autor
+    authors[index] = {
+        id,
+        name,
+        email,
+        bio: bio || "",
+        created_at: authors[index].created_at
+    }
+
+    res.status(200).json(authors[index]); 
+
+})
 
 //#POSTS
 

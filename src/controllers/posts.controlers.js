@@ -8,7 +8,14 @@ const createPosts = (req, res) => {
     //Extraer los datos del post del body de la solicitud
     const {authorId, title, content, published, created_at} = req.body;
 
-    //Valuidacion de campos requeridos
+    // 2. Verificamos si el autor realmente existe en nuestra base de datos en memoria
+    const authorExists = authors.find(a => a.id === authorId);
+    if (!authorExists) {
+        return res.status(404).json({
+            error: "Author not found"
+        });
+    }
+    //Validacion de campos requeridos
     if(!authorId || !title || !content){
         return res.status(400).json({
             error: "authorId, title and content are required"

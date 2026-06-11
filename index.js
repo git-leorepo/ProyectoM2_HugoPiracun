@@ -42,11 +42,6 @@ app.get("/health", (req, res) => {
     })
 })
 
-
-
-
-
-
 //comprobacion que el puerto esta funcionando
 app.listen(config.PORT, ()=>{
     console.log(`Servidor corriendo en el puerto http://localhost:${config.PORT} en modo ${config.NODE_ENV}`);

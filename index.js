@@ -1,6 +1,15 @@
 //requieres para express
 //variables de entorno
-require('dotenv').config();
+//require('dotenv').config();
+const { loadEnvFile } = require('node:process');
+loadEnvFile('.env');
+
+//Configuracion de las variables de entorno requeridas para el proyect
+const validarVariablesEntorno = require('./src/config/validateEnv');
+
+//Configuracion del pool de src/db/config.js
+const pool = require("./src/db/config");
+
 
 //Configuracion de las rutas
 //#1. AUTHORS

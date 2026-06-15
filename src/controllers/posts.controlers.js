@@ -1,142 +1,183 @@
 //Array para almacenar autores en memoria
 //const authors = [];
-const {posts} = require("../data/posts");
-const {authors} = require("../data/authors");
+/* const {posts} = require("../data/posts");
+const {authors} = require("../data/authors"); */
+
+//configutramos pool en este archivo
+const {Pool} = require('pg');
+const pool = require("../db/config");
 
 //POST/posts
-const createPosts = (req, res) => {
-    //Extraer los datos del post del body de la solicitud
-    const {authorId, title, content, published, created_at} = req.body;
+const createPosts = async(req, res) => {
+    try{
+        //Extraer los datos del post del body de la solicitud
+        const {title, content, author_id, published} = req.body;
 
-    // 2. Verificamos si el autor realmente existe en nuestra base de datos en memoria
-    const authorExists = authors.find(a => a.id === authorId);
-    if (!authorExists) {
-        return res.status(404).json({
-            error: "Author not found"
+        //Validacion de campos requeridos
+        if(!title || !content ||!author_id){
+            return res.status(400).json({
+                error: "authorId, title and content are required"
+            });
+        }
+
+        //verificar si el autor ya existe
+        const authorExist = await pool.query('SELECT * FROM authors WHERE id = $1', [author_id]);
+
+        if(authorExist.rows.length === 0){
+            return res.status(404).json({
+                error: "Author not found"
+            })
+        }       
+        
+        const consulta = await pool.query('INSERT INTO posts(title, content, author_id, published) VALUES ($1, $2, $3, $4) RETURNING *', [title, content, author_id, published]);
+        
+        
+        
+
+        //Devolver el post creado con un status 201
+        res.status(201).json(consulta.rows[0]);
+    }catch(error){
+        console.error('Error creating author:', error);
+        res.status(500).json({
+            error: "Internal server error"
         });
     }
-    //Validacion de campos requeridos
-    if(!authorId || !title || !content){
-        return res.status(400).json({
-            error: "authorId, title and content are required"
-        });
-    }
-    
-    //Crear el objeto Post
-    const newPost = {
-        id: posts.length +1,
-        title,
-        content,
-        authorId,                
-        published: published || false, //si no viene sera false
-        created_at: created_at || new Date().toISOString()
-    }
-
-    //Guardar el post en el array de posts
-    posts.push(newPost);
-
-    //Devolver el post creado con un status 201
-    res.status(201).json(newPost);
 };
 
 //GET/posts
-const getAllPost = (req, res) =>{
-    res.status(200).json(posts);
+const getAllPost = async(req, res) =>{
+    try {
+        const consulta = await pool.query('SELECT * FROM posts');
+        res.status(200).json(consulta.rows);
+    }catch(error){
+        console.error('Error fetching author:', error);
+        res.status(500).json({
+            error: "Internal server error"
+        });        
+    }
+    
 };
 
 //GET/posts/:id 
-const getPostById = (req, res) =>{
-    //Extraer el ID de los parámetros de la ruta y lo convierte a número
-    const id = Number (req.params.id);
+const getPostById = async(req, res) =>{
+    try{
+        //Extraer el ID de los parámetros de la ruta y lo convierte a número
+        const id = Number (req.params.id);
 
-    //Validar que eñ id es valido
-    if(Number.isNaN(id)){
-        return res.status(400).json({
-            error: "ID must be a number"
-        })
-    }
-    //buscar el post por ID
-    const post = posts.find(p => p.id === id);
+        //Validar que eñ id es valido
+        if(Number.isNaN(id)){
+            return res.status(400).json({
+                error: "ID must be a number"
+            })
+        }
+    
+        if(id<=0){
+            return res.status(400).json({
+                error: "Posts ID must be a positive integer" 
+            })
+        }
 
-    if (!post){
+        //Consultar la BD usando parametros preparados
+        const consulta = await pool.query('SELECT * FROM posts WHERE id=$1', [id]);
+
+        const posts = consulta.rows;
+        
+        //buscar el post por ID
+        const post = posts.find((post) => post.id ===id);
+
         //si el post no existe
-        return res.status(404).json({
-            error: "Post not found"
-        })
+        if (!post){
+            //si el post no existe
+            return res.status(404).json({
+                error: "Post not found"
+            })
     }
 
     //responder que el post fue encontrado
-    res.status(200).json(post);
+    res.status(200).json(consulta.rows[0]);
+    }catch(error){
+        console.error('Error fetching author:', error);
+        res.status(500).json({
+            error: "Internal server error"
+        });
+    }
 }
 
 //PUT/posts/:id
-const updatePostById = (req, res) =>{
-    //Extrae el ID del endpoint
-    const id = Number (req.params.id);
+const updatePostById = async(req, res) =>{
+    try{
+        //Extrae el ID del endpoint
+        const id = Number (req.params.id);
 
-    if(Number.isNaN(id)){
-        return res.status(400).json({
-            error: "ID must be a number"
-        })
+        if(Number.isNaN(id)){
+            return res.status(400).json({
+                error: "ID must be a number"
+            })
+        }
+
+        //Extrae los nuevos datos del body
+        const {title, content, author_id, published} = req.body;
+
+        if(!title || !content || !author_id){
+            return res.status(400).json({
+                error: "title, or content, or authorId are required"
+            })
+        }
+        //verificar si el autor existe
+        const authorExist = await pool.query('SELECT * FROM posts WHERE id = $1', [author_id]);
+
+        if (authorExist.rows.length===0){
+            return res.status(404).json({
+                error: "Author not found"
+            })
+        }
+
+        //Actualizar el post en la BD
+        const consulta = await pool.query('UPDATE posts SET title=$1, content=$2, author_id=$3, published=$4 WHERE id=$5 RETURNING *', [title, content, author_id, published, id]);
+
+        res.status(200).json(consulta.rows[0]);
+    }catch(error) {
+        console.error('Error updating author:', error);
+        res.status(500).json({
+            error: "Internal server error"
+        });
     }
-
-    //Extrae los nuevos datos del body
-    const {authorId, title, content, published, created_at} = req.body;
-
-    if(!title || !content || !authorId){
-        return res.status(400).json({
-            error: "title, or content, or authorId are required"
-        })
-    }
-
-    //buscar el indice del post por ID en el array
-    //findIndex devuelve la posicion del elemento array, sino lo encuentra devuelve -1
-    const index = posts.findIndex (p => p.id === id);
-
-    if(index ===-1){
-        return res.status(404).json({
-            error: "Post not found"
-        })
-    }
-
-    posts[index] = {
-        id,
-        title,
-        content,
-        authorId,
-        published,
-        created_at
-    }
-
-    res.status(200).json(posts[index]);
 }
 
 //DELETE./posts/:id
-const deletePostById = (req, res) =>{
-    //Extrae el id del endpoint
-    const id = Number(req.params.id);
+const deletePostById = async(req, res) =>{
+    try{
+        //Extraer el ID de posts
+        const id= Number(req.params.id);
 
-    if(Number.isNaN(id)){
-        return res.status(400).json({
-            error: "ID must be a number"
-        })
+        //Validar que el ID sea un numero valido
+        if(Number.isNaN(id)){
+            return res.status(400).json({
+                error: "ID must be a number"
+            });
+        }
+
+        //Verificar si el autor existe
+        const postExists = await pool.query('SELECT * FROM posts WHERE id = $1', [id]);
+
+        if (postExists.rows.length ===0){
+            return res.status(404).json({
+                error: "Posts not found"
+            })
+        }
+
+        //Eliminar el author de la BD
+        const consulta = await pool.query('DELETE FROM posts WHERE id = $1 RETURNING *', [id]);
+
+        res.status(200).json(consulta.rows[0]);
+
+    }catch(error) {
+        console.error('Error deleting author:', error);
+        res.status(500).json({
+            error: "Internal server error"
+        });
     }
 
-    //Buscar el indice del posts
-    const index = posts.findIndex(p => p.id === id);
-
-    //Validar que el indice exista    
-    if(index === -1){
-        return res.status(404).json({
-            error: "Posts not found"
-        })
-    }
-
-    //Elimina el posts con el indice indicado
-    const deleted = posts.splice(index, 1)[0];
-
-    //Cod de respuesta del posts eliminado
-    res.status(200).json(deleted);
 }
 
 // GET/posts/author/:authorId - Obtener todos los posts con el detalle de su respectivo autor

@@ -1,4 +1,7 @@
-//requieres para express
+//==========================================
+// REQUIRES Y CONFIGURACIÓN DE VARIABLES
+//==========================================
+
 //variables de entorno
 //require('dotenv').config();
 const { loadEnvFile } = require('node:process');
@@ -10,14 +13,6 @@ const validarVariablesEntorno = require('./src/config/validateEnv');
 //Configuracion del pool de src/db/config.js
 const pool = require("./src/db/config");
 
-
-//Configuracion de las rutas
-//#1. AUTHORS
-const authorRoutes = require("./src/routes/author.routes");
-//#2. POSTS
-const postRoutes = require("./src/routes/post.routes");
-
-
 //configuracion para express
 const express = require('express');
 const app = express();
@@ -25,8 +20,26 @@ const app = express();
 //traigo la configuracion desde el archivo config.js en la carpeta config
 const config = require('./src/config/config');
 
+//Configuracion de OPENAPI
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const swaggerDocument = YAML.load('./openapi.yaml');
+
+//Configuracion de las rutas
+//#1. AUTHORS
+const authorRoutes = require("./src/routes/author.routes");
+//#2. POSTS
+const postRoutes = require("./src/routes/post.routes");
+
+//==========================================
+// MIDDLEWARE
+//==========================================
+
 //middleware para parsear el cuerpo de las solicitudes como JSON
 app.use(express.json());
+
+//Configuración de Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //Registrar las rutas
 app.use("/", authorRoutes);

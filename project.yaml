@@ -1,0 +1,523 @@
+# ============================================
+# Proyecto Integrador 2 - Documentación
+# ============================================
+
+project:
+  name: "Proyecto Integrador 2"
+  description: "API para documentar autores, posts y comentarios de una aplicación de publicaciones usando Node.js con Express y PostgreSQL"
+  version: "1.0.0"
+  author: "Hugo Leonardo Piracun"
+  repository: "https://github.com/git-leorepo/ProyectoM2_HugoPiracun.git"
+  license: "ISC"
+  type: "REST API"
+
+# ============================================
+# Información del Sistema
+# ============================================
+
+system:
+  runtime: "Node.js"
+  package_manager: "npm"
+  main_file: "index.js"
+  port: 3001
+  environment: "development"
+
+# ============================================
+# Dependencias
+# ============================================
+
+dependencies:
+  production:
+    - name: "express"
+      version: "^5.2.1"
+      description: "Framework web para Node.js"
+    - name: "pg"
+      version: "^8.21.0"
+      description: "Cliente PostgreSQL para Node.js"
+    - name: "dotenv"
+      version: "^17.4.2"
+      description: "Carga variables de entorno desde archivo .env"
+
+  development:
+    - name: "node"
+      feature: "--watch flag para desarrollo en tiempo real"
+
+# ============================================
+# Variables de Entorno
+# ============================================
+
+environment_variables:
+  PORT:
+    description: "Puerto en el que corre la API"
+    default: 3001
+    required: false
+
+  NODE_ENV:
+    description: "Ambiente de ejecución"
+    default: "development"
+    required: false
+    options: ["development", "production"]
+
+  DB_HOST:
+    description: "Host del servidor PostgreSQL"
+    required: true
+    example: "localhost"
+
+  DB_PORT:
+    description: "Puerto del servidor PostgreSQL"
+    required: true
+    example: "5432"
+
+  DB_NAME:
+    description: "Nombre de la base de datos"
+    required: true
+    example: "publicaciones_db"
+
+  DB_USER:
+    description: "Usuario de PostgreSQL"
+    required: true
+    example: "postgres"
+
+  DB_PASSWORD:
+    description: "Contraseña de PostgreSQL"
+    required: true
+
+# ============================================
+# Estructura de Carpetas
+# ============================================
+
+project_structure:
+  root: "."
+  directories:
+    - path: "src/"
+      description: "Código fuente principal"
+      subdirectories:
+        - path: "config/"
+          files:
+            - name: "config.js"
+              description: "Configuración de variables de entorno"
+            - name: "validateEnv.js"
+              description: "Validación de variables de entorno requeridas"
+
+        - path: "controllers/"
+          files:
+            - name: "authors.controlers.js"
+              description: "Lógica de negocio para operaciones CRUD de autores"
+            - name: "posts.controlers.js"
+              description: "Lógica de negocio para operaciones CRUD de posts"
+
+        - path: "routes/"
+          files:
+            - name: "author.routes.js"
+              description: "Definición de rutas para autores"
+            - name: "post.routes.js"
+              description: "Definición de rutas para posts"
+
+        - path: "data/"
+          files:
+            - name: "authors.js"
+              description: "Datos de autores (almacenamiento en memoria)"
+            - name: "posts.js"
+              description: "Datos de posts (almacenamiento en memoria)"
+
+        - path: "db/"
+          files:
+            - name: "config.js"
+              description: "Configuración del pool de conexión PostgreSQL"
+            - name: "setup.sql"
+              description: "Script SQL para crear tablas iniciales"
+            - name: "test-connection.js"
+              description: "Script para verificar conexión a la BD"
+
+  files:
+    - name: "index.js"
+      description: "Punto de entrada de la aplicación"
+    - name: "package.json"
+      description: "Metadatos y dependencias del proyecto"
+
+# ============================================
+# Endpoints de la API
+# ============================================
+
+api:
+  base_url: "http://localhost:3001"
+
+  endpoints:
+    # ---- AUTORES ----
+    - group: "AUTORES"
+      endpoints:
+        - method: "POST"
+          path: "/authors"
+          description: "Crear un nuevo autor"
+          controller: "createAuthors"
+          body:
+            name:
+              type: "string"
+              required: true
+              description: "Nombre del autor"
+            email:
+              type: "string"
+              required: true
+              description: "Email único del autor"
+            bio:
+              type: "string"
+              required: false
+              description: "Biografía del autor"
+          response_code: 201
+          response_example:
+            id: 1
+            name: "John Doe"
+            email: "john@example.com"
+            bio: "Escritor profesional"
+            created_at: "2026-06-15T10:00:00.000Z"
+
+        - method: "GET"
+          path: "/authors"
+          description: "Obtener todos los autores"
+          controller: "getAllAuthors"
+          response_code: 200
+          response_example:
+            - id: 1
+              name: "John Doe"
+              email: "john@example.com"
+              bio: "Escritor profesional"
+              created_at: "2026-06-15T10:00:00.000Z"
+
+        - method: "GET"
+          path: "/authors/:id"
+          description: "Obtener un autor por ID"
+          controller: "getAuthorsById"
+          parameters:
+            - name: "id"
+              type: "number"
+              required: true
+              description: "ID del autor"
+          response_code: 200
+          response_example:
+            id: 1
+            name: "John Doe"
+            email: "john@example.com"
+            bio: "Escritor profesional"
+            created_at: "2026-06-15T10:00:00.000Z"
+
+        - method: "PUT"
+          path: "/authors/:id"
+          description: "Actualizar un autor por ID"
+          controller: "updateAuthorsById"
+          parameters:
+            - name: "id"
+              type: "number"
+              required: true
+              description: "ID del autor"
+          body:
+            name:
+              type: "string"
+              required: false
+            email:
+              type: "string"
+              required: false
+            bio:
+              type: "string"
+              required: false
+          response_code: 200
+
+        - method: "DELETE"
+          path: "/authors/:id"
+          description: "Eliminar un autor por ID"
+          controller: "deleteAuthorsById"
+          parameters:
+            - name: "id"
+              type: "number"
+              required: true
+              description: "ID del autor"
+          response_code: 200
+
+    # ---- POSTS ----
+    - group: "POSTS"
+      endpoints:
+        - method: "POST"
+          path: "/posts"
+          description: "Crear un nuevo post"
+          controller: "createPosts"
+          body:
+            title:
+              type: "string"
+              required: true
+              description: "Título del post"
+            content:
+              type: "string"
+              required: true
+              description: "Contenido del post"
+            author_id:
+              type: "number"
+              required: true
+              description: "ID del autor"
+            published:
+              type: "boolean"
+              required: false
+              default: false
+              description: "Estado de publicación"
+          response_code: 201
+          response_example:
+            id: 1
+            title: "Mi primer post"
+            content: "Contenido del post"
+            author_id: 1
+            published: false
+            created_at: "2026-06-15T10:00:00.000Z"
+
+        - method: "GET"
+          path: "/posts"
+          description: "Obtener todos los posts"
+          controller: "getAllPost"
+          response_code: 200
+          response_example:
+            - id: 1
+              title: "Mi primer post"
+              content: "Contenido del post"
+              author_id: 1
+              published: false
+              created_at: "2026-06-15T10:00:00.000Z"
+
+        - method: "GET"
+          path: "/posts/author/:authorId"
+          description: "Obtener todos los posts de un autor con sus detalles"
+          controller: "getPostByAuthor"
+          parameters:
+            - name: "authorId"
+              type: "number"
+              required: true
+              description: "ID del autor"
+          response_code: 200
+          note: "Esta ruta debe ir antes de /posts/:id para evitar conflictos de enrutamiento"
+
+        - method: "GET"
+          path: "/posts/:id"
+          description: "Obtener un post por ID"
+          controller: "getPostById"
+          parameters:
+            - name: "id"
+              type: "number"
+              required: true
+              description: "ID del post"
+          response_code: 200
+          response_example:
+            id: 1
+            title: "Mi primer post"
+            content: "Contenido del post"
+            author_id: 1
+            published: false
+            created_at: "2026-06-15T10:00:00.000Z"
+
+        - method: "PUT"
+          path: "/posts/:id"
+          description: "Actualizar un post por ID"
+          controller: "updatePostById"
+          parameters:
+            - name: "id"
+              type: "number"
+              required: true
+              description: "ID del post"
+          body:
+            title:
+              type: "string"
+              required: false
+            content:
+              type: "string"
+              required: false
+            published:
+              type: "boolean"
+              required: false
+          response_code: 200
+
+        - method: "DELETE"
+          path: "/posts/:id"
+          description: "Eliminar un post por ID"
+          controller: "deletePostById"
+          parameters:
+            - name: "id"
+              type: "number"
+              required: true
+              description: "ID del post"
+          response_code: 200
+
+    # ---- SALUD ----
+    - group: "HEALTH"
+      endpoints:
+        - method: "GET"
+          path: "/health"
+          description: "Verificar que la API está funcionando correctamente"
+          response_code: 200
+          response_example:
+            status: "ok"
+            message: "API is healthy"
+            timestamp: "2026-06-15T10:00:00.000Z"
+            uptime: 125.3456
+            version: "1.0.0"
+
+# ============================================
+# Scripts npm
+# ============================================
+
+scripts:
+  dev:
+    command: "npm run dev"
+    description: "Ejecutar la aplicación en modo desarrollo con auto-reload"
+    usage: "npm run dev"
+
+  test:
+    command: "npm test"
+    description: "Ejecutar tests (no configurado aún)"
+    usage: "npm test"
+
+# ============================================
+# Instrucciones de Instalación
+# ============================================
+
+installation:
+  steps:
+    - step: 1
+      description: "Clonar el repositorio"
+      command: "git clone https://github.com/git-leorepo/ProyectoM2_HugoPiracun.git"
+
+    - step: 2
+      description: "Navegar al directorio del proyecto"
+      command: "cd ProyectoM2_HugoPiracun"
+
+    - step: 3
+      description: "Instalar dependencias"
+      command: "npm install"
+
+    - step: 4
+      description: "Crear archivo .env con las variables de entorno"
+      command: "cp .env.example .env"
+
+    - step: 5
+      description: "Configurar variables de entorno en .env"
+      note: "Editar el archivo .env con los datos reales de PostgreSQL"
+
+    - step: 6
+      description: "Crear la base de datos"
+      command: "psql -U postgres -d postgres -f src/db/setup.sql"
+
+    - step: 7
+      description: "Iniciar la API"
+      command: "npm run dev"
+
+# ============================================
+# Base de Datos
+# ============================================
+
+database:
+  type: "PostgreSQL"
+  version: "12+"
+  tables:
+    - name: "authors"
+      columns:
+        - name: "id"
+          type: "SERIAL PRIMARY KEY"
+          description: "ID único del autor"
+        - name: "name"
+          type: "VARCHAR(255) NOT NULL"
+          description: "Nombre del autor"
+        - name: "email"
+          type: "VARCHAR(255) UNIQUE NOT NULL"
+          description: "Email único del autor"
+        - name: "bio"
+          type: "TEXT"
+          description: "Biografía del autor"
+        - name: "created_at"
+          type: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+          description: "Fecha de creación"
+
+    - name: "posts"
+      columns:
+        - name: "id"
+          type: "SERIAL PRIMARY KEY"
+          description: "ID único del post"
+        - name: "title"
+          type: "VARCHAR(255) NOT NULL"
+          description: "Título del post"
+        - name: "content"
+          type: "TEXT NOT NULL"
+          description: "Contenido del post"
+        - name: "author_id"
+          type: "INTEGER NOT NULL FOREIGN KEY REFERENCES authors(id)"
+          description: "ID del autor que escribió el post"
+        - name: "published"
+          type: "BOOLEAN DEFAULT FALSE"
+          description: "Estado de publicación"
+        - name: "created_at"
+          type: "TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+          description: "Fecha de creación"
+
+# ============================================
+# Validaciones y Manejo de Errores
+# ============================================
+
+error_handling:
+  validation_errors:
+    - code: 400
+      message: "Bad Request"
+      description: "Campos requeridos faltantes o inválidos"
+      example: "name and email are required"
+
+  not_found_errors:
+    - code: 404
+      message: "Not Found"
+      description: "Recurso no encontrado"
+      example: "Author not found"
+
+  duplicate_errors:
+    - code: 409
+      message: "Conflict"
+      description: "Recurso duplicado (ej: email ya existe)"
+      example: "An author with this email already exists"
+
+  server_errors:
+    - code: 500
+      message: "Internal Server Error"
+      description: "Error en el servidor"
+      example: "Internal server error"
+
+# ============================================
+# Características y Mejoras Futuras
+# ============================================
+
+features:
+  current:
+    - "CRUD completo para Autores"
+    - "CRUD completo para Posts"
+    - "Validación de datos de entrada"
+    - "Manejo de errores robusto"
+    - "Verificación de salud de la API"
+    - "Endpoint para obtener posts por autor"
+
+  planned:
+    - "Autenticación y autorización"
+    - "Paginación de resultados"
+    - "Tests unitarios e integración"
+    - "Documentación con Swagger"
+    - "CORS configurables"
+    - "Rate limiting"
+    - "Logging mejorado"
+
+# ============================================
+# Notas Importantes
+# ============================================
+
+notes:
+  - "El orden de las rutas es importante: /posts/author/:authorId debe ir antes de /posts/:id"
+  - "Las variables de entorno se cargan desde el archivo .env"
+  - "La base de datos usa PostgreSQL con pool de conexiones"
+  - "Todos los IDs son números enteros positivos"
+  - "Los emails de los autores deben ser únicos"
+
+# ============================================
+# Contacto y Soporte
+# ============================================
+
+contact:
+  author: "Hugo Leonardo Piracun"
+  repository: "https://github.com/git-leorepo/ProyectoM2_HugoPiracun.git"
+  type: "ISC License"

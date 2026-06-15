@@ -1,0 +1,789 @@
+openapi: 3.0.0
+
+info:
+  title: "Proyecto Integrador 2 - API de Publicaciones"
+  description: "API REST para documentar autores, posts y comentarios de una aplicación de publicaciones usando Node.js, Express y PostgreSQL"
+  version: "1.0.0"
+  contact:
+    name: "Hugo Leonardo Piracun"
+    url: "https://github.com/git-leorepo/ProyectoM2_HugoPiracun"
+  license:
+    name: "ISC"
+    url: "https://opensource.org/licenses/ISC"
+
+servers:
+  - url: "http://localhost:3001"
+    description: "Servidor de desarrollo"
+    variables:
+      port:
+        default: "3001"
+  - url: "https://api.example.com"
+    description: "Servidor de producción"
+
+tags:
+  - name: "Health"
+    description: "Endpoint de salud de la API"
+  - name: "Authors"
+    description: "Operaciones CRUD para autores"
+  - name: "Posts"
+    description: "Operaciones CRUD para posts"
+
+paths:
+  # ============================================
+  # HEALTH
+  # ============================================
+  /health:
+    get:
+      tags:
+        - "Health"
+      summary: "Verificar salud de la API"
+      description: "Obtiene el estado actual de la API, versión y tiempo de actividad"
+      operationId: "getHealth"
+      responses:
+        "200":
+          description: "API está funcionando correctamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: "ok"
+                message: "API is healthy"
+                timestamp: "2026-06-15T10:30:45.123Z"
+                uptime: 125.456
+                version: "1.0.0"
+
+  # ============================================
+  # AUTHORS
+  # ============================================
+  /authors:
+    post:
+      tags:
+        - "Authors"
+      summary: "Crear un nuevo autor"
+      description: "Crea un nuevo autor en la base de datos con nombre, email y biografía opcional"
+      operationId: "createAuthor"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAuthorRequest"
+            example:
+              name: "John Doe"
+              email: "john@example.com"
+              bio: "Escritor profesional con 10 años de experiencia"
+      responses:
+        "201":
+          description: "Autor creado exitosamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+              example:
+                id: 1
+                name: "John Doe"
+                email: "john@example.com"
+                bio: "Escritor profesional con 10 años de experiencia"
+                created_at: "2026-06-15T10:30:45.123Z"
+        "400":
+          description: "Solicitud inválida - campos requeridos faltantes o inválidos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "name and email are required"
+        "409":
+          description: "Conflicto - el email ya existe en la base de datos"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "An author with this email already exists"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Internal server error"
+
+    get:
+      tags:
+        - "Authors"
+      summary: "Obtener todos los autores"
+      description: "Recupera una lista de todos los autores registrados en la base de datos"
+      operationId: "getAllAuthors"
+      responses:
+        "200":
+          description: "Lista de autores obtenida exitosamente"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Author"
+              example:
+                - id: 1
+                  name: "John Doe"
+                  email: "john@example.com"
+                  bio: "Escritor profesional"
+                  created_at: "2026-06-15T10:30:45.123Z"
+                - id: 2
+                  name: "Jane Smith"
+                  email: "jane@example.com"
+                  bio: "Novelista"
+                  created_at: "2026-06-15T11:00:00.000Z"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /authors/{id}:
+    get:
+      tags:
+        - "Authors"
+      summary: "Obtener un autor por ID"
+      description: "Recupera los detalles de un autor específico por su ID"
+      operationId: "getAuthorById"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "ID único del autor"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        "200":
+          description: "Autor encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+              example:
+                id: 1
+                name: "John Doe"
+                email: "john@example.com"
+                bio: "Escritor profesional"
+                created_at: "2026-06-15T10:30:45.123Z"
+        "400":
+          description: "ID inválido - debe ser un número positivo"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "ID must be a number"
+        "404":
+          description: "Autor no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Author not found"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - "Authors"
+      summary: "Actualizar un autor por ID"
+      description: "Actualiza la información de un autor específico (nombre, email, biografía)"
+      operationId: "updateAuthorById"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "ID único del autor"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateAuthorRequest"
+            example:
+              name: "John Doe Updated"
+              email: "john.updated@example.com"
+              bio: "Escritor con 15 años de experiencia"
+      responses:
+        "200":
+          description: "Autor actualizado exitosamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        "400":
+          description: "Solicitud inválida"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Autor no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - "Authors"
+      summary: "Eliminar un autor por ID"
+      description: "Elimina un autor específico de la base de datos"
+      operationId: "deleteAuthorById"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "ID único del autor"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        "200":
+          description: "Autor eliminado exitosamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessage"
+        "400":
+          description: "ID inválido"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Autor no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ============================================
+  # POSTS
+  # ============================================
+  /posts:
+    post:
+      tags:
+        - "Posts"
+      summary: "Crear un nuevo post"
+      description: "Crea un nuevo post asociado a un autor existente"
+      operationId: "createPost"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePostRequest"
+            example:
+              title: "Mi primer post"
+              content: "Este es el contenido de mi primer post"
+              author_id: 1
+              published: false
+      responses:
+        "201":
+          description: "Post creado exitosamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+              example:
+                id: 1
+                title: "Mi primer post"
+                content: "Este es el contenido de mi primer post"
+                author_id: 1
+                published: false
+                created_at: "2026-06-15T10:30:45.123Z"
+        "400":
+          description: "Solicitud inválida - campos requeridos faltantes"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "authorId, title and content are required"
+        "404":
+          description: "Autor no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Author not found"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    get:
+      tags:
+        - "Posts"
+      summary: "Obtener todos los posts"
+      description: "Recupera una lista de todos los posts registrados en la base de datos"
+      operationId: "getAllPosts"
+      responses:
+        "200":
+          description: "Lista de posts obtenida exitosamente"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+              example:
+                - id: 1
+                  title: "Mi primer post"
+                  content: "Contenido del post"
+                  author_id: 1
+                  published: false
+                  created_at: "2026-06-15T10:30:45.123Z"
+                - id: 2
+                  title: "Mi segundo post"
+                  content: "Más contenido"
+                  author_id: 1
+                  published: true
+                  created_at: "2026-06-15T11:00:00.000Z"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /posts/author/{authorId}:
+    get:
+      tags:
+        - "Posts"
+      summary: "Obtener posts de un autor"
+      description: "Recupera todos los posts escritos por un autor específico con los detalles del autor"
+      operationId: "getPostsByAuthor"
+      parameters:
+        - name: authorId
+          in: path
+          required: true
+          description: "ID único del autor"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        "200":
+          description: "Posts del autor obtenidos exitosamente"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostWithAuthor"
+        "404":
+          description: "Autor no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /posts/{id}:
+    get:
+      tags:
+        - "Posts"
+      summary: "Obtener un post por ID"
+      description: "Recupera los detalles de un post específico por su ID"
+      operationId: "getPostById"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "ID único del post"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        "200":
+          description: "Post encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+              example:
+                id: 1
+                title: "Mi primer post"
+                content: "Contenido del post"
+                author_id: 1
+                published: false
+                created_at: "2026-06-15T10:30:45.123Z"
+        "400":
+          description: "ID inválido"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Post no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - "Posts"
+      summary: "Actualizar un post por ID"
+      description: "Actualiza la información de un post específico (título, contenido, estado de publicación)"
+      operationId: "updatePostById"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "ID único del post"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePostRequest"
+            example:
+              title: "Título actualizado"
+              content: "Contenido actualizado"
+              published: true
+      responses:
+        "200":
+          description: "Post actualizado exitosamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "400":
+          description: "Solicitud inválida"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Post no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - "Posts"
+      summary: "Eliminar un post por ID"
+      description: "Elimina un post específico de la base de datos"
+      operationId: "deletePostById"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: "ID único del post"
+          schema:
+            type: integer
+            minimum: 1
+          example: 1
+      responses:
+        "200":
+          description: "Post eliminado exitosamente"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessMessage"
+        "400":
+          description: "ID inválido"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: "Post no encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Error interno del servidor"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+# ============================================
+# COMPONENTS - SCHEMAS
+# ============================================
+components:
+  schemas:
+    # ---- HEALTH RESPONSE ----
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - message
+        - timestamp
+        - uptime
+        - version
+      properties:
+        status:
+          type: string
+          example: "ok"
+          description: "Estado de la API"
+        message:
+          type: string
+          example: "API is healthy"
+          description: "Mensaje de estado"
+        timestamp:
+          type: string
+          format: date-time
+          description: "Marca de tiempo de la respuesta"
+        uptime:
+          type: number
+          format: float
+          description: "Tiempo de actividad en segundos"
+        version:
+          type: string
+          example: "1.0.0"
+          description: "Versión de la API"
+
+    # ---- AUTHOR SCHEMAS ----
+    Author:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "ID único del autor"
+          example: 1
+        name:
+          type: string
+          description: "Nombre del autor"
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: "Email del autor (único)"
+          example: "john@example.com"
+        bio:
+          type: string
+          nullable: true
+          description: "Biografía del autor"
+          example: "Escritor profesional"
+        created_at:
+          type: string
+          format: date-time
+          description: "Fecha de creación del autor"
+
+    CreateAuthorRequest:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Nombre del autor"
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: "Email del autor (debe ser único)"
+          example: "john@example.com"
+        bio:
+          type: string
+          nullable: true
+          description: "Biografía del autor (opcional)"
+          example: "Escritor profesional con 10 años de experiencia"
+
+    UpdateAuthorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Nombre del autor"
+          example: "John Doe Updated"
+        email:
+          type: string
+          format: email
+          description: "Email del autor"
+          example: "john.updated@example.com"
+        bio:
+          type: string
+          nullable: true
+          description: "Biografía del autor"
+          example: "Escritor con más experiencia"
+
+    # ---- POST SCHEMAS ----
+    Post:
+      type: object
+      required:
+        - id
+        - title
+        - content
+        - author_id
+        - published
+        - created_at
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: "ID único del post"
+          example: 1
+        title:
+          type: string
+          description: "Título del post"
+          example: "Mi primer post"
+        content:
+          type: string
+          description: "Contenido del post"
+          example: "Este es el contenido de mi primer post"
+        author_id:
+          type: integer
+          format: int64
+          description: "ID del autor que escribió el post"
+          example: 1
+        published:
+          type: boolean
+          description: "Estado de publicación del post"
+          example: false
+        created_at:
+          type: string
+          format: date-time
+          description: "Fecha de creación del post"
+
+    PostWithAuthor:
+      allOf:
+        - $ref: "#/components/schemas/Post"
+        - type: object
+          properties:
+            author:
+              $ref: "#/components/schemas/Author"
+              description: "Detalles completos del autor del post"
+
+    CreatePostRequest:
+      type: object
+      required:
+        - title
+        - content
+        - author_id
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Título del post"
+          example: "Mi primer post"
+        content:
+          type: string
+          minLength: 1
+          description: "Contenido del post"
+          example: "Este es el contenido de mi primer post"
+        author_id:
+          type: integer
+          format: int64
+          description: "ID del autor que escribirá el post"
+          example: 1
+        published:
+          type: boolean
+          default: false
+          description: "Estado de publicación inicial (opcional)"
+          example: false
+
+    UpdatePostRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 255
+          description: "Título del post"
+          example: "Título actualizado"
+        content:
+          type: string
+          minLength: 1
+          description: "Contenido del post"
+          example: "Contenido actualizado"
+        published:
+          type: boolean
+          description: "Estado de publicación"
+          example: true
+
+    # ---- ERROR & SUCCESS RESPONSES ----
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: "Mensaje de error"
+          example: "Resource not found"
+
+    SuccessMessage:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: "Mensaje de éxito"
+          example: "Deleted successfully"

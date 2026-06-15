@@ -1,7 +1,7 @@
 //Array para almacenar autores en memoria
 //const authors = [];
-/* const {posts} = require("../data/posts");
-const {authors} = require("../data/authors"); */
+const {posts} = require("../data/posts");
+const {authors} = require("../data/authors");
 
 //configutramos pool en este archivo
 const {Pool} = require('pg');
@@ -181,46 +181,51 @@ const deletePostById = async(req, res) =>{
 }
 
 // GET/posts/author/:authorId - Obtener todos los posts con el detalle de su respectivo autor
-const getPostByAuthor = (req, res) =>{
-    // 1. Extraemos y validamos que el authorId sea un número
-    const authorId = Number(req.params.authorId);
+const getPostByAuthor = async(req, res) =>{
+    const sql = `
+        SELECT posts.id,
+            posts.title,
+            posts.content,
+            posts.author_id,
+            posts.published,
+            posts.created_at,
+            authors.name,
+            authors.email,
+            authors.bio        
+        FROM posts 
+            JOIN authors ON posts.author_id=authors.id
+            WHERE posts.author_id=$1`;
 
-    if (Number.isNaN(authorId)) {
-        return res.status(400).json({
-            error: "authorId must be a number"
+    try{
+        // 1. Extraemos y validamos que el authorId sea un número
+        const authorId = Number(req.params.authorId);
+
+        if (Number.isNaN(authorId)) {
+            return res.status(400).json({
+                error: "authorId must be a number"
+            });
+        }
+
+        // 2. Verificamos si el autor existe en la BD
+        const authorExists = await pool.query('SELECT * FROM authors WHERE id = $1', [authorId]);
+        
+        if (authorExists.rows.length === 0){
+            return res.status(404).json({
+                error: "Author not found"
+            })
+        }
+
+        // 3. Obtenemos los posts del autor con el JOIN
+        const consulta = await pool.query(sql, [authorId]);
+
+        // 4. Respondemos con los datos
+        res.status(200).json(consulta.rows);
+    }catch (error) {
+        console.error('Error fetching posts by author:', error);
+        res.status(500).json({
+            error: "Internal server error"
         });
     }
-
-    // 2. Verificamos si el autor realmente existe en nuestra base de datos en memoria
-    const authorExists = authors.find(a => a.id === authorId);
-    if (!authorExists) {
-        return res.status(404).json({
-            error: "Author not found"
-        });
-    }
-
-    // 3. Filtramos todos los posts que pertenezcan a este authorId
-    const authorPosts = posts.filter(p => p.authorId === authorId);
-
-    // 4. Mapeamos los posts encontrados para incrustar el objeto del autor dentro de cada uno
-    const postsWithAuthorDetail = authorPosts.map(post => {
-        return {
-            id: post.id,
-            title: post.title,
-            content: post.content,
-            published: post.published,
-            created_at: post.created_at,
-            author: {
-                id: authorExists.id,
-                name: authorExists.name,
-                email: authorExists.email,
-                bio: authorExists.bio
-            }
-        };
-    });
-
-    // 5. Respondemos con el array finalizado
-    res.status(200).json(postsWithAuthorDetail);
 }
 
 module.exports = {createPosts, getAllPost, getPostById, updatePostById, deletePostById,getPostByAuthor};

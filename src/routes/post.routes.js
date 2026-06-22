@@ -1,11 +1,14 @@
 //llamar a express
-const express = require("express");
+//const express = require("express");
+import express from "express";
 const router = express.Router();
 
 //data desde el archivo data/posts
-const {posts} = require("../data/posts");
+//const {posts} = require("../data/posts");
+import { posts } from "../data/posts.js";
 
-const {createPosts, getAllPost, getPostById, updatePostById, deletePostById,getPostByAuthor} = require("../controllers/posts.controlers");
+//const {createPosts, getAllPost, getPostById, updatePostById, deletePostById,getPostByAuthor} = require("../controllers/posts.controlers");
+import {createPosts, getAllPost, getPostById, updatePostById, deletePostById,getPostByAuthor} from "../controllers/posts.controlers.js";
 
 //POST/posts
 router.post("/posts", createPosts);
@@ -31,8 +34,4 @@ router.put("/posts/:id", updatePostById);
 //DELETE./posts/:id
 router.delete("/posts/:id", deletePostById);
 
-
-
-
-
-module.exports = router;
+export default router;

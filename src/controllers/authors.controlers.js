@@ -2,8 +2,11 @@
 //const authors = [];
 //const {authors} = require("../data/authors");
 //configutramos pool en este archivo
-const {Pool} = require('pg');
-const pool = require("../db/config");
+/* const {Pool} = require('pg'); */
+//const pool = require("../db/config");
+import pg from 'pg';
+const { Pool } = pg;
+import pool from "../db/config.js";
 
 
 //POST/authors
@@ -47,7 +50,7 @@ const createAuthors = async(req, res) => {
 //GET/authors
 const getAllAuthors = async(req, res) => {
     try{
-        const consulta= await pool.query('SELECT * FROM authors');
+        const consulta= await pool.query('SELECT * FROM authors ORDER BY id asc');
         //console.log(consulta);
         res.status(200).json(consulta.rows);
     
@@ -181,4 +184,4 @@ const deleteAuthorsById = async(req, res) =>{
 }
 
 
-module.exports = {createAuthors, getAllAuthors, getAuthorsById, updateAuthorsById, deleteAuthorsById};
+export {createAuthors, getAllAuthors, getAuthorsById, updateAuthorsById, deleteAuthorsById};

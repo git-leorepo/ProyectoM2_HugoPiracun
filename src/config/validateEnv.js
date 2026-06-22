@@ -21,4 +21,4 @@ for (const varName of requiredEnvVars) {
 
 console.log('Todas las variables de entorno requeridas están presentes');
 
-module.exports = requiredEnvVars;
+export default requiredEnvVars;

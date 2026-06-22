@@ -1,11 +1,17 @@
 //Array para almacenar autores en memoria
 //const authors = [];
-const {posts} = require("../data/posts");
-const {authors} = require("../data/authors");
+/* const {posts} = require("../data/posts");
+const {authors} = require("../data/authors"); */
+import { posts } from "../data/posts.js";
+import { authors } from "../data/authors.js";
+
 
 //configutramos pool en este archivo
-const {Pool} = require('pg');
-const pool = require("../db/config");
+/* const {Pool} = require('pg');
+const pool = require("../db/config"); */
+import pg from 'pg';
+const { Pool } = pg;
+import pool from "../db/config.js";
 
 //POST/posts
 const createPosts = async(req, res) => {
@@ -47,7 +53,7 @@ const createPosts = async(req, res) => {
 //GET/posts
 const getAllPost = async(req, res) =>{
     try {
-        const consulta = await pool.query('SELECT * FROM posts');
+        const consulta = await pool.query('SELECT * FROM posts ORDER BY id ASC');
         res.status(200).json(consulta.rows);
     }catch(error){
         console.error('Error fetching author:', error);
@@ -228,5 +234,5 @@ const getPostByAuthor = async(req, res) =>{
     }
 }
 
-module.exports = {createPosts, getAllPost, getPostById, updatePostById, deletePostById,getPostByAuthor};
+export {createPosts, getAllPost, getPostById, updatePostById, deletePostById,getPostByAuthor};
 

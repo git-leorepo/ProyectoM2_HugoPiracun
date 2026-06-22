@@ -124,7 +124,7 @@ const updateAuthorsById = async(req, res) =>{
         }
 
         //Verificar si el autor existe
-        const authorExists = await pool.query('SELECT * FROM authors WHERE id = $1', [id]);
+        const authorExists = await pool.query('SELECT * FROM authors WHERE id = $1 ORDER BY id ASC', [id]);
         
         if (authorExists.rows.length === 0){
             return res.status(404).json({

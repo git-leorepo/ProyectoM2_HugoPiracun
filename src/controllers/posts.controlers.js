@@ -26,6 +26,23 @@ const createPosts = async(req, res) => {
             });
         }
 
+        // Detectar intentos básicos de SQL injection
+        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
+        if (patronesSQL.test(title || content)) {
+            
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });            
+        }
+
+        // Detectar caracteres potencialmente peligrosos
+        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
+        if (caracteresProhibidos.test(title || content)) {
+            return res.status(400).json({
+                error: "forbidden characters"
+            });                          
+        }
+
         //verificar si el autor ya existe
         const authorExist = await pool.query('SELECT * FROM authors WHERE id = $1', [author_id]);
 
@@ -121,6 +138,23 @@ const updatePostById = async(req, res) =>{
             })
         }
 
+        // Detectar intentos básicos de SQL injection
+        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
+        if (patronesSQL.test(title || content)) {
+            
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });            
+        }
+
+        // Detectar caracteres potencialmente peligrosos
+        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
+        if (caracteresProhibidos.test(title || content)) {
+            return res.status(400).json({
+                error: "forbidden characters"
+            });                          
+        }
+
         //Extrae los nuevos datos del body
         const {title, content, author_id, published} = req.body;
 
@@ -129,6 +163,9 @@ const updatePostById = async(req, res) =>{
                 error: "title, or content, or authorId are required"
             })
         }
+
+        
+
         //verificar si el autor existe
         const authorExist = await pool.query('SELECT * FROM posts WHERE id = $1', [author_id]);
 

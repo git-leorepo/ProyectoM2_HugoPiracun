@@ -9,6 +9,7 @@ const { Pool } = pg;
 import pool from "../db/config.js";
 
 
+
 //POST/authors
 const createAuthors = async(req, res) => {
     try {
@@ -20,6 +21,31 @@ const createAuthors = async(req, res) => {
             return res.status(400).json({
                 error: "name and email are required"
             })
+        }
+
+        //Validar que el Email tenga un formato correcto
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                error: "the email format is invalid"
+            });            
+        }
+
+        // Detectar intentos básicos de SQL injection
+        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
+        if (patronesSQL.test(name)) {
+            
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });            
+        }
+
+        // Detectar caracteres potencialmente peligrosos
+        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
+        if (caracteresProhibidos.test(name)) {
+            return res.status(400).json({
+                error: "forbidden characters"
+            });                          
         }
 
         //Verificar si el email ya existe
@@ -50,7 +76,7 @@ const createAuthors = async(req, res) => {
 //GET/authors
 const getAllAuthors = async(req, res) => {
     try{
-        const consulta= await pool.query('SELECT * FROM authors ORDER BY id asc');
+        const consulta= await pool.query('SELECT * FROM authors ORDER BY id ASC');
         //console.log(consulta);
         res.status(200).json(consulta.rows);
     
@@ -82,7 +108,7 @@ const getAuthorsById = async(req, res) => {
             return res.status(400).json({
                 error: "Author ID must be a positive integer"
             });
-        }
+        }       
 
         //Consultar la BD usando parámetros preparados (evita SQL injection)
         const consulta = await pool.query('SELECT * FROM authors WHERE id=$1', [id]);
@@ -125,6 +151,24 @@ const updateAuthorsById = async(req, res) =>{
                 error: "name and email are required"
             })
         }
+
+        // Detectar intentos básicos de SQL injection
+        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
+        if (patronesSQL.test(name)) {
+            
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });            
+        }
+
+        // Detectar caracteres potencialmente peligrosos
+        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
+        if (caracteresProhibidos.test(name)) {
+            return res.status(400).json({
+                error: "forbidden characters"
+            });                          
+        }
+
 
         //Verificar si el autor existe
         const authorExists = await pool.query('SELECT * FROM authors WHERE id = $1 ORDER BY id ASC', [id]);

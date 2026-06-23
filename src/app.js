@@ -6,6 +6,7 @@ import postRoutes from './routes/post.routes.js';
 
 const app = express();
 
+//const swaggerDocument = YAML.load('./openapi.yaml');
 const swaggerDocument = YAML.load('./openapi.yaml');
 
 app.use(express.json());

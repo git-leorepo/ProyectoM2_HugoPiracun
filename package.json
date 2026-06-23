@@ -10,9 +10,12 @@
   "author": "Hugo Leonardo Piracun",
   "type": "module",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch index.js"
+  "scripts": {    
+    "dev": "node --watch index.js",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+
   },
   "dependencies": {
     "dotenv": "^17.4.2",

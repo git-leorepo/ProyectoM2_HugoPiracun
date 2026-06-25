@@ -10,12 +10,11 @@
   "author": "Hugo Leonardo Piracun",
   "type": "module",
   "main": "index.js",
-  "scripts": {    
+  "scripts": {
     "dev": "node --watch index.js",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
-
   },
   "dependencies": {
     "dotenv": "^17.4.2",
@@ -23,5 +22,9 @@
     "pg": "^8.21.0",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
+  },
+  "devDependencies": {
+    "@vitest/ui": "^4.1.9",
+    "supertest": "^7.2.2"
   }
 }

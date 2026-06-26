@@ -69,8 +69,6 @@ vi.mock('../db/config', () => ({
   }
 }));
 
-
-
 //TEST de Crear authors
 describe ('POST/authors', ()=>{
     test('1. crea usuario con datos válidos', async () => {

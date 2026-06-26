@@ -7,6 +7,7 @@
 import pg from 'pg';
 const { Pool } = pg;
 import pool from "../db/config.js";
+import { SQLInjection, caracteresProhibidos } from "../test/validators.js"
 
 
 
@@ -32,21 +33,31 @@ const createAuthors = async(req, res) => {
         }
 
         // Detectar intentos básicos de SQL injection
-        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
-        if (patronesSQL.test(name)) {
-            
+        if (SQLInjection(name)===true){
             return res.status(400).json({
                 error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
-            });            
+            });  
+        }
+
+        if (SQLInjection(bio)===true){
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });  
         }
 
         // Detectar caracteres potencialmente peligrosos
-        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
-        if (caracteresProhibidos.test(name)) {
+        if(caracteresProhibidos(name)===true){
             return res.status(400).json({
                 error: "forbidden characters"
-            });                          
+            });
         }
+
+        if(caracteresProhibidos(bio)===true){
+            return res.status(400).json({
+                error: "forbidden characters"
+            });
+        }
+                
 
         //Verificar si el email ya existe
         const emailCheck = await pool.query('SELECT * FROM authors WHERE email = $1', [email]);
@@ -152,23 +163,38 @@ const updateAuthorsById = async(req, res) =>{
             })
         }
 
-        // Detectar intentos básicos de SQL injection
-        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
-        if (patronesSQL.test(name)) {
-            
+        //Validar que el Email tenga un formato correcto
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
             return res.status(400).json({
-                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+                error: "the email format is invalid"
             });            
         }
 
-        // Detectar caracteres potencialmente peligrosos
-        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
-        if (caracteresProhibidos.test(name)) {
+        // Detectar intentos básicos de SQL injection
+        if (SQLInjection(name)===true){
             return res.status(400).json({
-                error: "forbidden characters"
-            });                          
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });  
         }
 
+        if (SQLInjection(bio)===true){
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });  
+        }
+
+        // Detectar caracteres potencialmente peligrosos
+        if(caracteresProhibidos(name)===true){
+            return res.status(400).json({
+                error: "forbidden characters"
+            });
+        }
+         if(caracteresProhibidos(bio)===true){
+            return res.status(400).json({
+                error: "forbidden characters"
+            });
+        }
 
         //Verificar si el autor existe
         const authorExists = await pool.query('SELECT * FROM authors WHERE id = $1 ORDER BY id ASC', [id]);

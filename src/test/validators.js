@@ -1,5 +1,7 @@
+export {validarEmail, queSeaNum, SQLInjection, caracteresProhibidos}
+
 // validators.js
-export function validarEmail(email) {
+function validarEmail(email) {
   if (!email) {
     return 'El email es requerido';
   }
@@ -10,6 +12,21 @@ export function validarEmail(email) {
   return null
 }
 
-export function queSeaNum (valor){
+function queSeaNum (valor){
     return typeof valor === 'number' && !isNaN(valor);
+}
+
+function SQLInjection(valor){
+  // Detectar intentos básicos de SQL injection
+        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
+        if (patronesSQL.test(valor)) {            
+            return true;            
+        }
+}
+
+function caracteresProhibidos(valor){
+    const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
+        if (caracteresProhibidos.test(valor)) {
+            return true; 
+        }
 }

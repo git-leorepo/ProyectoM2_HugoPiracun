@@ -4,6 +4,7 @@
 const {authors} = require("../data/authors"); */
 import { posts } from "../data/posts.js";
 import { authors } from "../data/authors.js";
+import { SQLInjection, caracteresProhibidos } from "../test/validators.js";
 
 
 //configutramos pool en este archivo
@@ -26,22 +27,30 @@ const createPosts = async(req, res) => {
             });
         }
 
-        // Detectar intentos básicos de SQL injection
-        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
-        if (patronesSQL.test(title || content)) {
-            
+        // Detectar intentos básicos de SQL injection        
+        if (SQLInjection(title)===true){
             return res.status(400).json({
                 error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
-            });            
+            });
         }
 
+        if (SQLInjection(content)===true){
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });
+        }
         // Detectar caracteres potencialmente peligrosos
-        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
-        if (caracteresProhibidos.test(title || content)) {
+        if (caracteresProhibidos(title)===true){
             return res.status(400).json({
                 error: "forbidden characters"
-            });                          
+            })
         }
+        
+        if (caracteresProhibidos(content)===true){
+            return res.status(400).json({
+                error: "forbidden characters"
+            })
+        }        
 
         //verificar si el autor ya existe
         const authorExist = await pool.query('SELECT * FROM authors WHERE id = $1', [author_id]);
@@ -138,21 +147,29 @@ const updatePostById = async(req, res) =>{
             })
         }
 
-        // Detectar intentos básicos de SQL injection
-        const patronesSQL = /(\bSELECT\b|\bINSERT\b|\bUPDATE\b|\bDELETE\b|\bDROP\b)/i;
-        if (patronesSQL.test(title || content)) {
-            
+        // Detectar intentos básicos de SQL injection        
+        if (SQLInjection(title)===true){
             return res.status(400).json({
                 error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
-            });            
+            });
         }
 
+        if (SQLInjection(content)===true){
+            return res.status(400).json({
+                error: "forbidden words SELECT, INSERT, UPDATE, DELETE, DROP"
+            });
+        }
         // Detectar caracteres potencialmente peligrosos
-        const caracteresProhibidos = /[<>{}[\]\/\\|;:'"]/;
-        if (caracteresProhibidos.test(title || content)) {
+        if (caracteresProhibidos(title)===true){
             return res.status(400).json({
                 error: "forbidden characters"
-            });                          
+            })
+        }
+        
+        if (caracteresProhibidos(content)===true){
+            return res.status(400).json({
+                error: "forbidden characters"
+            })
         }
 
         //Extrae los nuevos datos del body

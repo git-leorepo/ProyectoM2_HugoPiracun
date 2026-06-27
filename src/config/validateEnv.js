@@ -1,7 +1,11 @@
 //validacion de variables de entorno
 const requiredEnvVars = [
     'PORT',
-    'NODE_ENV',
+    'NODE_ENV'
+];
+
+const optionalEnvVars = [
+    'DATABASE_URL',
     'DB_URL',
     'API_KEY',
     'CORS_ORIGIN',
@@ -14,11 +18,14 @@ const requiredEnvVars = [
 
 for (const varName of requiredEnvVars) {
   if (!process.env[varName]) {
-    console.error(`Error: La variable de entorno ${varName} no está definida`);
-    process.exit(1);
+    console.warn(`Advertencia: La variable de entorno ${varName} no está definida. Se usará un valor por defecto.`);
   }
 }
 
-console.log('Todas las variables de entorno requeridas están presentes');
+for (const varName of optionalEnvVars) {
+  if (!process.env[varName]) {
+    console.info(`Info: La variable de entorno opcional ${varName} no está definida.`);
+  }
+}
 
 export default requiredEnvVars;

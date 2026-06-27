@@ -54,21 +54,22 @@ app.use("/", postRoutes); */
 //let nextIdAuthor = authors.length + 1;
 //let nextIdPost = posts.length + 1;
 
-const requiredEnvVars = [
-    'PORT', 'NODE_ENV', 'DB_URL', 'API_KEY', 'CORS_ORIGIN',
-    'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'
-];
+const requiredEnvVars = ['PORT', 'NODE_ENV'];
 for (const varName of requiredEnvVars) {
   if (!process.env[varName]) {
-    console.error(`Error: La variable de entorno ${varName} no está definida`);
-    process.exit(1);
+    console.warn(`Advertencia: La variable de entorno ${varName} no está definida. Se usará un valor por defecto.`);
   }
 }
-console.log('Todas las variables de entorno requeridas están presentes');
+
+const optionalEnvVars = ['DATABASE_URL', 'DB_URL', 'API_KEY', 'CORS_ORIGIN', 'DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
+for (const varName of optionalEnvVars) {
+  if (!process.env[varName]) {
+    console.info(`Info: La variable de entorno opcional ${varName} no está definida.`);
+  }
+}
 
 const { default: app } = await import('./src/app.js');
 const { default: config } = await import('./src/config/config.js');
-
 
 //comprobacion que el puerto esta funcionando
 app.listen(config.PORT, ()=>{

@@ -5,8 +5,8 @@
 //variables de entorno
 //require('dotenv').config();
 //const { loadEnvFile } = require('node:process');
-import {loadEnvFile} from 'node:process';
-loadEnvFile('.env');
+import dotevnv from 'dotenv';
+dotevnv.config();
 /* 
 //Configuracion de las variables de entorno requeridas para el proyect
 const validarVariablesEntorno = require('./src/config/validateEnv');
